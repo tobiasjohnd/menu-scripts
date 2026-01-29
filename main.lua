@@ -1,7 +1,11 @@
 #!/usr/bin/env lua
 
-local script_path = debug.getinfo(1, "S").source:match("@?(.*/)") or "./"
-local BASE_PATH = script_path:gsub("/$", "")
+local source = debug.getinfo(1, "S").source:sub(2)
+local handle = io.popen("readlink -f '" .. source .. "'")
+local script_path = handle:read("*a"):gsub("%s+$", "")
+handle:close()
+local BASE_PATH = script_path:match("(.*/)") or "./"
+BASE_PATH = BASE_PATH:gsub("/$", "")
 
 package.path = package.path .. ";" .. BASE_PATH .. "/lua/?.lua"
 
