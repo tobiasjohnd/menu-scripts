@@ -61,7 +61,7 @@ end
 
 local function get_playing()
     local out = read_cmd(
-    [[pactl -f json list sink-inputs 2>/dev/null | jq -r '.[] | "\(.properties["application.name"] // "unknown")\t\(.sink)"']])
+        [[pactl -f json list sink-inputs 2>/dev/null | jq -r '.[] | "\(.properties["application.name"] // "unknown")\t\(.sink)"']])
     local sink_desc = {}
     for _, s in ipairs(get_sinks()) do sink_desc[tostring(s.name)] = s.description end
     -- Also map by index
@@ -86,19 +86,19 @@ end
 
 local function volume_submenu()
     local current = get_volume()
-    local options = { "[Back]", "Custom", "---" }
+    local options = {}
     for i = 100, 0, -10 do
         local marker = (current and current == i) and "* " or "  "
         options[#options + 1] = marker .. i .. "%"
     end
 
-    local selection = menuhelper.select(options)
-    if not selection or selection == "[Back]" then return end
+    local prompt = "Volume (" .. (current or "?") .. "%):"
+    local selection = menuhelper.select(options, prompt)
+    if not selection then return end
 
-    if selection == "Custom" then
-        local input = menuhelper.prompt("Volume % (0-150):")
-        local val = tonumber(input)
-        if val then set_volume(val) end
+    local custom_val = tonumber(selection)
+    if custom_val then
+        set_volume(custom_val)
     elseif selection:match("%d+%%$") then
         local val = tonumber(selection:match("(%d+)%%$"))
         if val then set_volume(val) end
@@ -106,7 +106,7 @@ local function volume_submenu()
 end
 
 local function device_submenu(label, devices, current_name, set_fn)
-    local options = { "[Back]" }
+    local options = {}
     local device_map = {}
     for _, dev in ipairs(devices) do
         local prefix = dev.name == current_name and "* " or "  "
@@ -116,7 +116,7 @@ local function device_submenu(label, devices, current_name, set_fn)
     end
 
     local selection = menuhelper.select(options)
-    if not selection or selection == "[Back]" then return end
+    if not selection then return end
 
     local name = device_map[selection]
     if name then set_fn(name) end
@@ -136,25 +136,23 @@ return {
         while true do
             local vol = get_volume()
             local muted = get_mute()
-            local vol_label = "Volume: " .. (vol and (vol .. "%") or "unknown")
-            local mute_label = muted and "Mute: ON" or "Mute: OFF"
+            local prompt = "Audio [Vol: " .. (vol and (vol .. "%") or "?") .. (muted and " MUTED]" or "]")
 
-            local options = { "[Back]", vol_label, mute_label, "Output Device", "Input Device" }
+            local options = { "Set Volume", "Toggle Mute", "Output Device", "Input Device" }
 
             local playing = get_playing()
             if #playing > 0 then
-                options[#options + 1] = "---"
                 for _, p in ipairs(playing) do
                     options[#options + 1] = "  " .. p.app .. " → " .. p.sink
                 end
             end
 
-            local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            local selection = menuhelper.select(options, prompt)
+            if not selection then return nil end
 
             local actions = {
-                [vol_label] = volume_submenu,
-                [mute_label] = toggle_mute,
+                ["Set Volume"] = volume_submenu,
+                ["Toggle Mute"] = toggle_mute,
                 ["Output Device"] = function()
                     device_submenu("Output", get_sinks(), get_default_sink(), function(name)
                         os.execute("pactl set-default-sink " .. menuhelper.shell_escape(name))

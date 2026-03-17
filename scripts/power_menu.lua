@@ -8,12 +8,12 @@ local function confirm(action, cmd)
 end
 
 return {
-    name = "Logout/Shutdown Menu",
+    name = "Power Menu",
     description = "Logout, reboot, or shutdown",
 
     execute = function()
         while true do
-            local selection = menuhelper.select({ "Logout", "Reboot", "Shutdown", "[Back]" })
+            local selection = menuhelper.select({ "Logout", "Reboot", "Shutdown",  })
 
             if selection == "Logout" then
                 os.execute("loginctl terminate-user " .. os.getenv("USER") .. " &")

@@ -1,11 +1,26 @@
 local DesktopEntry = {}
 
-DesktopEntry.SYSTEM_DESKTOP_ENTRIES = { "/usr/share/applications", "/usr/local/share/applications" }
+DesktopEntry.SYSTEM_DESKTOP_ENTRIES = {}
+
+local xdg_data_dirs = os.getenv("XDG_DATA_DIRS") or "/usr/local/share:/usr/share"
+for dir in xdg_data_dirs:gmatch("([^:]+)") do
+    table.insert(DesktopEntry.SYSTEM_DESKTOP_ENTRIES, dir .. "/applications")
+end
+
+local common_paths = {
+    "/var/lib/flatpak/exports/share/applications",
+    os.getenv("HOME") .. "/.local/share/flatpak/exports/share/applications",
+    "/var/lib/snapd/desktop/applications",
+}
+for _, path in ipairs(common_paths) do
+    table.insert(DesktopEntry.SYSTEM_DESKTOP_ENTRIES, path)
+end
+
 DesktopEntry.USER_DESKTOP_ENTRIES = os.getenv("HOME") .. "/.local/share/applications"
 
 function DesktopEntry:get_desktop_files(directory)
     local files = {}
-    local p = io.popen('find "' .. directory .. '" -type f -name "*.desktop" 2>/dev/null')
+    local p = io.popen('find -L "' .. directory .. '" -type f -name "*.desktop" 2>/dev/null')
     if p then
         for file in p:lines() do files[#files + 1] = file end
         p:close()

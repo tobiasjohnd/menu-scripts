@@ -32,7 +32,7 @@ return {
             return nil
         end
 
-        local options = { "[Back]", "---" }
+        local options = {}
         local page_map = {}
 
         for _, p in ipairs(pages) do
@@ -42,7 +42,7 @@ return {
         end
 
         local selection = menuhelper.select(options)
-        if not selection or selection == "[Back]" then return nil end
+        if not selection then return nil end
 
         local page = page_map[selection]
         if page then

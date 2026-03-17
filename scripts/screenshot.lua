@@ -11,7 +11,7 @@ return {
             return nil
         end
 
-        local selection = menuhelper.select({ "GUI Mode", "Full Screen", "[Back]" })
+        local selection = menuhelper.select({ "GUI Mode", "Full Screen",  })
 
         if selection == "GUI Mode" then
             os.execute("flameshot gui &")

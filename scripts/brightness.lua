@@ -39,21 +39,20 @@ return {
 
         while true do
             local current = get_brightness()
-            local current_label = current and ("Current: " .. current .. "%") or "Current: unknown"
-            local options = { "[Back]", current_label, "Custom", "---" }
+            local prompt = current and ("Brightness (" .. current .. "%):") or "Brightness:"
+            local options = {}
 
             for i = 100, MIN_PERCENT, -10 do
                 local marker = (current and current == i) and "* " or "  "
                 options[#options + 1] = marker .. i .. "%"
             end
 
-            local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            local selection = menuhelper.select(options, prompt)
+            if not selection then return nil end
 
-            if selection == "Custom" then
-                local input = menuhelper.prompt("Brightness % (" .. MIN_PERCENT .. "-100):")
-                local val = tonumber(input)
-                if val then set_brightness(val) end
+            local custom_val = tonumber(selection)
+            if custom_val then
+                set_brightness(custom_val)
             elseif selection:match("%d+%%$") then
                 local val = tonumber(selection:match("(%d+)%%$"))
                 if val then set_brightness(val) end

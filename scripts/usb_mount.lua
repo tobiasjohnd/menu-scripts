@@ -50,7 +50,7 @@ return {
 
         while true do
             local devices = get_removable_devices()
-            local options = { "[Back]", "Refresh", "---" }
+            local options = { "Refresh" }
             local device_map = {}
 
             if #devices == 0 then
@@ -66,7 +66,7 @@ return {
             end
 
             local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            if not selection then return nil end
 
             if selection == "Refresh" then
                 -- loops back

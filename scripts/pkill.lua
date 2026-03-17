@@ -33,7 +33,7 @@ return {
 
     execute = function()
         while true do
-            local options = { "[Back]", "---" }
+            local options = {}
             local proc_map = {}
             local procs = get_processes()
 
@@ -44,7 +44,7 @@ return {
             end
 
             local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            if not selection then return nil end
 
             if proc_map[selection] then
                 kill_submenu(proc_map[selection])

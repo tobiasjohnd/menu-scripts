@@ -98,7 +98,7 @@ local function search_menu()
         return
     end
 
-    local options = { "[Back]", "---" }
+    local options = {}
     local pkg_map = {}
 
     for _, pkg in ipairs(installed) do
@@ -113,7 +113,7 @@ local function search_menu()
     end
 
     local pick = menuhelper.select(options)
-    if not pick or pick == "[Back]" then return end
+    if not pick then return end
 
     local entry = pkg_map[pick]
     if entry then
@@ -133,8 +133,8 @@ return {
         end
 
         while true do
-            local selection = menuhelper.select({ "[Back]", "Update System", "Search Packages" })
-            if not selection or selection == "[Back]" then return nil end
+            local selection = menuhelper.select({ "Update System", "Search Packages" })
+            if not selection then return nil end
 
             local actions = {
                 ["Update System"]   = update_system,

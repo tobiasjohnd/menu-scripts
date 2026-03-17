@@ -3,8 +3,8 @@
 
 return {
     -- Menu program (dmenu, rofi, tofi, wofi)
-    menu_program = "dmenu",
-    menu_options = "-i -l 20",
+    menu_program = "rofi -dmenu",
+    menu_options = "-i",
 
     -- Applications
     terminal = "alacritty",

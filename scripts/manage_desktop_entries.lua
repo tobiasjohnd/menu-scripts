@@ -75,7 +75,7 @@ return {
         while true do
             local entries = desktop_entry:get_desktop_entries()
             local toggle_label = show_hidden and "Hide Hidden" or "Show Hidden"
-            local options = { "[Back]", toggle_label, "---" }
+            local options = { toggle_label }
 
             local names = {}
             for _, entry in ipairs(entries) do
@@ -95,11 +95,11 @@ return {
 
             local selection = menuhelper.select(options)
 
-            if not selection or selection == "[Back]" then
+            if not selection then
                 return nil
             elseif selection == "Show Hidden" or selection == "Hide Hidden" then
                 show_hidden = not show_hidden
-            elseif selection ~= "---" and selection ~= "(no entries)" then
+            elseif selection ~= "(no entries)" then
                 local entry = desktop_entry:get_entry_by_name(entries, selection)
                 if entry then
                     if not entry.in_user_dir then

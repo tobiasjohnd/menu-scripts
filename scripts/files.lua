@@ -21,11 +21,11 @@ local function mark(filepath, op)
 end
 
 local function expand_pick(pick)
-    return pick and pick ~= "[Back]" and pick ~= "---" and pick:gsub("^~", fh.home)
+    return pick and pick:gsub("^~", fh.home)
 end
 
 local function pick_path(paths)
-    local options = { "[Back]" }
+    local options = {}
     for _, p in ipairs(paths) do options[#options + 1] = fh.abbreviate_path(p) end
     return expand_pick(menuhelper.select(options))
 end
@@ -41,7 +41,7 @@ local function item_action(filepath, is_dir)
     local cfg = config:get_config()
     local name = filepath:match("([^/]+)/?$")
     local escaped = menuhelper.shell_escape(filepath)
-    local options = { "[Back]" }
+    local options = {}
 
     if not is_dir then
         options[#options + 1] = "Open"
@@ -57,7 +57,7 @@ local function item_action(filepath, is_dir)
     end
 
     local action = menuhelper.select(options)
-    if not action or action == "[Back]" then return end
+    if not action then return end
 
     local actions = {
         ["Open"]         = function()
@@ -100,14 +100,14 @@ local function create_prompt(label, cmd)
 end
 
 local function actions_menu()
-    local options = { "[Back]", "New File", "New Directory", "History",
+    local options = { "New File", "New Directory", "History",
         "Bookmark This Dir", "Compress" }
     if #state.marked > 0 then
         table.insert(options, 4, "Paste Here (" .. state.marked_op .. " " .. #state.marked .. ")")
     end
 
     local selection = menuhelper.select(options)
-    if not selection or selection == "[Back]" then return end
+    if not selection then return end
 
     local actions = {
         ["New File"]          = create_prompt("File", "touch"),
@@ -140,11 +140,11 @@ local function bookmarks_menu()
         menuhelper.select({ "(no bookmarks)" })
         return
     end
-    local options = { "[Back]", "Remove Bookmark", "---" }
+    local options = { "Remove Bookmark" }
     for _, a in ipairs(abbrevs) do options[#options + 1] = a end
 
     local pick = menuhelper.select(options)
-    if not pick or pick == "[Back]" then return end
+    if not pick then return end
     if pick == "Remove Bookmark" then
         local rm_path = pick_path(bmarks)
         if rm_path then fh.remove_bookmark(rm_path) end
@@ -167,23 +167,21 @@ return {
 
         while true do
             local dirs, files = fh.list_dir(state.current)
-            local options = { "[Back]", "../", "Actions", "Bookmarks" }
+            local options = { "../", "Actions", "Bookmarks" }
 
             if #dirs == 0 and #files == 0 then
                 options[#options + 1] = "(empty)"
             else
                 if #dirs > 0 then
-                    options[#options + 1] = "---"
                     for _, d in ipairs(dirs) do options[#options + 1] = d end
                 end
                 if #files > 0 then
-                    options[#options + 1] = "---"
                     for _, f in ipairs(files) do options[#options + 1] = f end
                 end
             end
 
             local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            if not selection then return nil end
 
             local actions = {
                 ["../"] = function()
@@ -191,7 +189,6 @@ return {
                 end,
                 ["Actions"] = function() actions_menu() end,
                 ["Bookmarks"] = function() bookmarks_menu() end,
-                ["---"] = function() end,
                 ["(empty)"] = function() end,
             }
             local fn = actions[selection]
@@ -199,7 +196,7 @@ return {
                 fn()
             elseif selection:match("/$") then
                 local dirpath = state.current .. "/" .. selection:sub(1, -2)
-                local choice = menuhelper.select({ "[Back]", "Open", "Actions" })
+                local choice = menuhelper.select({ "Open", "Actions" })
                 local dir_actions = {
                     ["Open"] = function() navigate(dirpath) end,
                     ["Actions"] = function() return item_action(dirpath, true) end,

@@ -152,7 +152,7 @@ return {
 
         while true do
             local monitors = get_monitors()
-            local options = { "[Back]", "---" }
+            local options = {}
             local monitor_map = {}
 
             if #monitors == 0 then
@@ -169,7 +169,7 @@ return {
             end
 
             local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            if not selection then return nil end
 
             if monitor_map[selection] then
                 monitor_submenu(monitor_map[selection], monitors)

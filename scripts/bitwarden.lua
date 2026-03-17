@@ -164,7 +164,7 @@ return {
 
         while true do
             local items = list_items(session)
-            local options = { "[Back]", "Lock Vault", "Search", "---" }
+            local options = { "Lock Vault", "Search" }
             local item_map = {}
 
             if #items == 0 then
@@ -177,7 +177,7 @@ return {
             end
 
             local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            if not selection then return nil end
 
             local menu_actions = {
                 ["Lock Vault"] = function()
@@ -192,14 +192,14 @@ return {
                         menuhelper.select({ "(no results)" })
                         return
                     end
-                    local search_options = { "[Back]" }
+                    local search_options = {}
                     local search_map = {}
                     for _, item in ipairs(results) do
                         search_options[#search_options + 1] = item.name
                         search_map[item.name] = item
                     end
                     local pick = menuhelper.select(search_options)
-                    if pick and pick ~= "[Back]" and search_map[pick] then
+                    if pick and search_map[pick] then
                         item_action(session, search_map[pick])
                     end
                 end,

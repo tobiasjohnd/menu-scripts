@@ -11,6 +11,7 @@ return {
     name = "Clipboard Manager",
     description = "Manage clipboard content",
     category = "utilities",
+    menu_options = "-l 20",
 
     execute = function()
         local tool = detect_tool()
@@ -64,35 +65,29 @@ return {
 
         while true do
             local current = get_content()
-            local options = { "[Back]", "Copy Text", "Clear" }
+            local options = { "Clear" }
 
             if current then
-                options[#options + 1] = "---"
                 options[#options + 1] = "Current: " .. current:gsub("\n", " "):sub(1, 80)
             end
 
             local history = get_history()
             if #history > 0 then
-                options[#options + 1] = "---"
                 for _, item in ipairs(history) do
                     options[#options + 1] = item
                 end
             end
 
             local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            if not selection then return nil end
 
             local actions = {
-                ["Copy Text"] = function()
-                    local text = menuhelper.prompt("Enter text:")
-                    if text then set_content(text) end
-                end,
                 ["Clear"] = function() os.execute(cmds[tool].clear) end,
             }
             local fn = actions[selection]
             if fn then
                 fn()
-            elseif selection ~= "---" and not selection:match("^Current:") then
+            elseif not selection:match("^Current:") then
                 set_content(selection)
             end
         end

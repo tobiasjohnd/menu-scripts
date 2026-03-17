@@ -1,4 +1,5 @@
 local MenuBuilder = {}
+local menuhelpers = require("menuhelpers")
 
 local scripts_base_path = ""
 local flat_mode = true
@@ -55,19 +56,19 @@ function MenuBuilder:build_menu(current_folder)
             end
         end
 
-        for _, script in ipairs(all_scripts) do
-            if flat_mode or not script.category then
-                local display = "!" .. script.name
-                options[#options + 1] = display
-                item_map[display] = { type = "script", script = script }
-            end
-        end
-
         local desktop_entry = require("desktop_entry")
         for _, app in ipairs(desktop_entry:get_desktop_entries()) do
             if not app.hidden and app.exec then
                 options[#options + 1] = app.name
                 item_map[app.name] = { type = "desktop_app", app = app }
+            end
+        end
+
+        for _, script in ipairs(all_scripts) do
+            if flat_mode or not script.category then
+                local display = "!" .. script.name
+                options[#options + 1] = display
+                item_map[display] = { type = "script", script = script }
             end
         end
     else
@@ -88,9 +89,19 @@ end
 
 function MenuBuilder:execute_script(script)
     if not script or not script.execute then return nil end
+
+    if script.menu_options then
+        menuhelpers.set_temp_options(script.menu_options)
+    end
+
     local ok, result = pcall(script.execute)
+
+    if script.menu_options then
+        menuhelpers.clear_temp_options()
+    end
+
     if not ok then
-        require("menuhelpers").select({ "Script error: " .. tostring(result) })
+        menuhelpers.select({ "Script error: " .. tostring(result) })
         return nil
     end
     return result

@@ -77,7 +77,7 @@ return {
         while true do
             local powered = bt_powered()
             local power_label = powered and "Power: ON" or "Power: OFF"
-            local options = { "[Back]", power_label, "Scan", "Refresh", "---" }
+            local options = { power_label, "Scan", "Refresh" }
             local device_map = {}
 
             if powered then
@@ -111,7 +111,7 @@ return {
             end
 
             local selection = menuhelper.select(options)
-            if not selection or selection == "[Back]" then return nil end
+            if not selection then return nil end
 
             local actions = {
                 [power_label] = toggle_power,
